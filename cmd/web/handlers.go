@@ -6,13 +6,13 @@ import (
 )
 
 func (app *application) VirtualTerminal(w http.ResponseWriter, r *http.Request) {
-	pk_key := os.Getenv("pk_test")
+	pk_key := os.Getenv("STRIPE_KEY")
 	data := map[string]interface{}{
 		"pk_key": pk_key,
 	}
 	td := &templateData{Data: data}
 
-	if err := app.renderTemplate(w, r, "terminal", td); err != nil {
+	if err := app.renderTemplate(w, r, "terminal", td, "stripe-js"); err != nil {
 		app.errorLog.Println(err)
 	}
 }
@@ -42,6 +42,17 @@ func (app *application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 	if err := app.renderTemplate(w, r, "succeeded", &templateData{
 		Data: data,
 	}); err != nil {
+		app.errorLog.Println(err)
+	}
+}
+
+func (app *application) ChargeOnce(w http.ResponseWriter, r *http.Request) {
+	pk_key := os.Getenv("STRIPE_KEY")
+	data := map[string]interface{}{
+		"pk_key": pk_key,
+	}
+	td := &templateData{Data: data}
+	if err := app.renderTemplate(w, r, "buy-once", td, "stripe-js"); err != nil {
 		app.errorLog.Println(err)
 	}
 }
