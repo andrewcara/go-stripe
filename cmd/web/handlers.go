@@ -3,16 +3,13 @@ package main
 import (
 	"net/http"
 	"os"
+
+	"github.com/andrewcara/go-stripe.git/internal/models"
 )
 
 func (app *application) VirtualTerminal(w http.ResponseWriter, r *http.Request) {
-	pk_key := os.Getenv("STRIPE_KEY")
-	data := map[string]interface{}{
-		"pk_key": pk_key,
-	}
-	td := &templateData{Data: data}
 
-	if err := app.renderTemplate(w, r, "terminal", td, "stripe-js"); err != nil {
+	if err := app.renderTemplate(w, r, "terminal", &templateData{}, "stripe-js"); err != nil {
 		app.errorLog.Println(err)
 	}
 }
@@ -51,6 +48,16 @@ func (app *application) ChargeOnce(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{
 		"pk_key": pk_key,
 	}
+
+	event := models.TicketEvent{
+		ID:          1,
+		Name:        "Jeremy Underground @ The Loft",
+		Description: "Party",
+		Price:       1500,
+	}
+
+	data["event"] = event
+
 	td := &templateData{Data: data}
 	if err := app.renderTemplate(w, r, "buy-once", td, "stripe-js"); err != nil {
 		app.errorLog.Println(err)
