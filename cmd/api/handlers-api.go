@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/andrewcara/go-stripe.git/internal/cards"
+	"github.com/go-chi/chi/v5"
 )
 
 type stripePayload struct {
@@ -77,4 +78,26 @@ func (app *application) GetPaymentIntent(w http.ResponseWriter, r *http.Request)
 		w.Write(out)
 	}
 
+}
+
+func (app *application) GetEventByID(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	eventID, _ := strconv.Atoi(id)
+
+	event, err := app.DB.GetEvent(eventID)
+
+	if err != nil {
+		app.errorLog.Println(err)
+		return
+	}
+
+	out, err := json.MarshalIndent(event, "", " ")
+
+	if err != nil {
+		app.errorLog.Println(err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(out)
 }
