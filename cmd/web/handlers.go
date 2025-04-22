@@ -50,10 +50,9 @@ func (app *application) ChargeOnce(w http.ResponseWriter, r *http.Request) {
 	}
 
 	event := models.TicketEvent{
-		ID:          1,
-		Name:        "Jeremy Underground @ The Loft",
-		Description: "Party",
-		Price:       1500,
+		ID:        1,
+		Artist_id: 1,
+		Venue:     "The Loft",
 	}
 
 	data["event"] = event

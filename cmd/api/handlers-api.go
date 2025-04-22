@@ -92,7 +92,6 @@ func (app *application) GetEventByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	out, err := json.MarshalIndent(event, "", " ")
-
 	if err != nil {
 		app.errorLog.Println(err)
 		return
