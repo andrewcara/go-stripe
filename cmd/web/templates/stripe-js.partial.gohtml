@@ -46,7 +46,7 @@
         form.classList.add("was-validated")
         hidePayButton()
 
-        amountToCharge = String(parseFloat(document.getElementById("amount").value)*100)
+        amountToCharge = document.getElementById("amount").value
 
         let payload = {
             amount: amountToCharge,

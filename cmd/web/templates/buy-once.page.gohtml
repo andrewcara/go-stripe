@@ -17,7 +17,7 @@ Buy one widget
     <input type="hidden" name="product_id" value="{{$event.ID}}">
     <input type="hidden" name="amount" id="amount" value="{{$event.Price}}">
 
-    <h3 class="mt-2 text-center">{{$event.Name}}: {{formatCurrency $event.Price}}</h3>
+    <h3 class="mt-2 text-center">{{$event.Description}}: {{formatCurrency $event.Price}}</h3>
     <p>{{$event.Description}}</p>
 
     <div class="mb-3">

@@ -84,7 +84,7 @@ func (app *application) GetEventByID(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	eventID, _ := strconv.Atoi(id)
 
-	event, err := app.DB.GetEvent(eventID)
+	event, err := app.DB.GetTicketEvents(eventID)
 
 	if err != nil {
 		app.errorLog.Println(err)

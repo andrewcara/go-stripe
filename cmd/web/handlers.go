@@ -3,8 +3,9 @@ package main
 import (
 	"net/http"
 	"os"
+	"strconv"
 
-	"github.com/andrewcara/go-stripe.git/internal/models"
+	"github.com/go-chi/chi/v5"
 )
 
 func (app *application) VirtualTerminal(w http.ResponseWriter, r *http.Request) {
@@ -49,10 +50,14 @@ func (app *application) ChargeOnce(w http.ResponseWriter, r *http.Request) {
 		"pk_key": pk_key,
 	}
 
-	event := models.TicketEvent{
-		ID:        1,
-		Artist_id: 1,
-		Venue:     "The Loft",
+	id := chi.URLParam(r, "id")
+	eventID, _ := strconv.Atoi(id)
+
+	event, err := app.DB.GetTicketEvents(eventID)
+
+	if err != nil {
+		app.errorLog.Println(err)
+		return
 	}
 
 	data["event"] = event
