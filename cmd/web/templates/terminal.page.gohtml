@@ -53,7 +53,7 @@ Virtual Terminal
 
     {{define "js"}}
     <script>
-        dicument.getElementByID("charge_amount", function(evt){
+        document.getElementById("charge_amount", function(evt){
             if (evt.target.value !==""){
                 document.getElementById("amount").value = evt.target.value*100
             }else{
