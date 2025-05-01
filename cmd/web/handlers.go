@@ -82,6 +82,8 @@ func (app *application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 		ExpiryYear:          int(expiryYear),
 		BankReturnCode:      pi.Charges.Data[0].ID,
 		TransactionStatusID: 2,
+		PaymentIntent:       paymentIntent,
+		PaymentMethod:       paymentMethod,
 	}
 
 	txnID, err := app.SaveTransaction(txn)
@@ -119,6 +121,8 @@ func (app *application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 	data["expiry_month"] = expiryMonth
 	data["expiry_year"] = expiryYear
 	data["bank_return_code"] = pi.Charges.Data[0].ID
+	data["first_name"] = firstName
+	data["last_name"] = lastName
 
 	//write this data to session then redirect so that we don't repost form data for payment
 	if err := app.renderTemplate(w, r, "succeeded", &templateData{

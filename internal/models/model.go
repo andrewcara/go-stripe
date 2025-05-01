@@ -89,8 +89,10 @@ type Transaction struct {
 	TransactionStatusID int       `json:"transaction_status_id"`
 	CreatedAt           time.Time `json:"created_at,omitempty"`
 	UpdatedAt           time.Time `json:"updated_at,omitempty"`
-	ExpiryMonth         int       `json:"expiry_Month"`
+	ExpiryMonth         int       `json:"expiry_month"`
 	ExpiryYear          int       `json:"expiry_year"`
+	PaymentIntent       string    `json:"payment_intent"`
+	PaymentMethod       string    `json:"payment_method"`
 }
 type User struct {
 	ID        int       `json:"id"`
@@ -153,79 +155,70 @@ func (m *DBmodel) InsertTransaction(txn Transaction) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	stmt := `insert into transactions
+	stmt := `INSERT INTO transactions
 	(amount, currency, last_four, bank_return_code,
-		transaction_status_id)
-		values(?,?,?,?,?)`
+		transaction_status_id, expiry_month, expiry_date, payment_intent, payment_method)
+		VALUES($1, $2, $3, $4, $5 $6, $7, $8, $9) RETURNING id`
 
-	result, err := m.DB.ExecContext(ctx, stmt,
+	var id int
+	err := m.DB.QueryRowContext(ctx, stmt,
 		txn.Amount,
 		txn.Currency,
 		txn.LastFour,
 		txn.BankReturnCode,
-		txn.TransactionStatusID)
+		txn.TransactionStatusID,
+		txn.ExpiryMonth,
+		txn.ExpiryYear,
+		txn.PaymentIntent,
+		txn.PaymentMethod).Scan(&id)
 
 	if err != nil {
 		return 0, err
 	}
 
-	id, err := result.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-
-	return int(id), nil
-
+	return id, nil
 }
 
-func (m *DBmodel) InsertOrder(txn Order) (int, error) {
+func (m *DBmodel) InsertOrder(order Order) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	stmt := `insert into orders
-	(ticket_id, status_id, quantity, amount)
-		values(?,?,?,?)`
+	stmt := `INSERT INTO orders
+	(ticket_id, status_id, quantity, amount, transaction_id, customer_id)
+		VALUES($1, $2, $3, $4, $5, $6) RETURNING id`
 
-	result, err := m.DB.ExecContext(ctx, stmt,
-		txn.TicketID,
-		txn.StatusID,
-		txn.Quantity,
-		txn.Amount)
+	var id int
+	err := m.DB.QueryRowContext(ctx, stmt,
+		order.TicketID,
+		order.StatusID,
+		order.Quantity,
+		order.Amount,
+		order.TransactionID,
+		order.CustomerID).Scan(&id)
 
 	if err != nil {
 		return 0, err
 	}
 
-	id, err := result.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-
-	return int(id), nil
-
+	return id, nil
 }
 func (m *DBmodel) InsertCustomer(c Customer) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	stmt := `insert into customers
+	stmt := `INSERT INTO customers
 	(first_name, last_name, email)
-		values(?,?,?)`
+		VALUES($1, $2, $3) RETURNING id`
 
-	result, err := m.DB.ExecContext(ctx, stmt,
+	var id int
+	err := m.DB.QueryRowContext(ctx, stmt,
 		c.FirstName,
 		c.LastName,
-		c.Email)
+		c.Email).Scan(&id)
 
 	if err != nil {
 		return 0, err
 	}
 
-	id, err := result.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-
-	return int(id), nil
-
+	return id, nil
 }
