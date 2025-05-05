@@ -125,7 +125,17 @@ func (app *application) PaymentSucceeded(w http.ResponseWriter, r *http.Request)
 	data["last_name"] = lastName
 
 	//write this data to session then redirect so that we don't repost form data for payment
-	if err := app.renderTemplate(w, r, "succeeded", &templateData{
+
+	app.Session.Put(r.Context(), "receipt", data)
+	http.Redirect(w, r, "/receipt", http.StatusSeeOther)
+
+}
+
+func (app *application) Receipt(w http.ResponseWriter, r *http.Request) {
+
+	data := app.Session.Get(r.Context(), "receipt").(map[string]interface{})
+	app.Session.Remove(r.Context(), "receipt")
+	if err := app.renderTemplate(w, r, "receipt", &templateData{
 		Data: data,
 	}); err != nil {
 		app.errorLog.Println(err)

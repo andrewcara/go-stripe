@@ -157,8 +157,8 @@ func (m *DBmodel) InsertTransaction(txn Transaction) (int, error) {
 
 	stmt := `INSERT INTO transactions
 	(amount, currency, last_four, bank_return_code,
-		transaction_status_id, expiry_month, expiry_date, payment_intent, payment_method)
-		VALUES($1, $2, $3, $4, $5 $6, $7, $8, $9) RETURNING id`
+		transaction_status_id, expiry_month, expiry_year, payment_intent, payment_method)
+		VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`
 
 	var id int
 	err := m.DB.QueryRowContext(ctx, stmt,
