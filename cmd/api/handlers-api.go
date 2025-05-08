@@ -100,3 +100,46 @@ func (app *application) GetEventByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(out)
 }
+
+func (app *application) CreateAuthToken(w http.ResponseWriter, r *http.Request) {
+	var userInput struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	err := app.readJSON(w, r, &userInput)
+
+	if err != nil {
+		app.badRequest(w, r, err)
+		return
+	}
+
+	user, err := app.DB.GetUserByEmail(userInput.Email)
+	if err != nil {
+		app.invalidCredentials(w)
+		return
+	}
+
+	validPassword, err := app.passwordMatches(user.Password, userInput.Password)
+
+	if err != nil {
+		app.invalidCredentials(w)
+		return
+	}
+
+	if !validPassword {
+		app.invalidCredentials(w)
+		return
+	}
+
+	var payload struct {
+		Error   bool   `json:"error"`
+		Message string `json:"message"`
+	}
+
+	payload.Error = false
+	payload.Message = "Success"
+
+	_ = app.writeJSON(w, http.StatusOK, payload)
+
+}

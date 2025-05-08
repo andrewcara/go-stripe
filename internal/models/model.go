@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"database/sql"
+	"strings"
 	"time"
 )
 
@@ -96,8 +97,8 @@ type Transaction struct {
 }
 type User struct {
 	ID        int       `json:"id"`
-	FirstName int       `json:"first_name"`
-	LastName  int       `json:"last_name"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
 	Email     string    `json:"email"`
 	Password  string    `json:"password"`
 	CreatedAt time.Time `json:"created_at,omitempty"`
@@ -221,4 +222,21 @@ func (m *DBmodel) InsertCustomer(c Customer) (int, error) {
 	}
 
 	return id, nil
+}
+
+// Gets a user by email address
+func (m *DBmodel) GetUserByEmail(email string) (User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	email = strings.ToLower(email)
+	var u User
+	row := m.DB.QueryRowContext(ctx, "select id, first_name, last_name, email, password, updated_at, created_at  from users where email = $1", email)
+
+	err := row.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Email, &u.Password, &u.UpdatedAt, &u.CreatedAt)
+
+	if err != nil {
+		return u, err
+	}
+	return u, nil
 }
