@@ -21,5 +21,6 @@ func (app *application) routes() http.Handler {
 	mux.Post("/api/payment-intent", app.GetPaymentIntent)
 	mux.Get("/api/event/{id}", app.GetEventByID)
 	mux.Post("/api/authenticate", app.CreateAuthToken)
+	mux.Post("/api/is-authenticated", app.CheckAuthentication)
 	return mux
 }

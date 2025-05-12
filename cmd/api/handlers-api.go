@@ -2,10 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/andrewcara/go-stripe.git/internal/cards"
+	"github.com/andrewcara/go-stripe.git/internal/models"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -132,14 +135,58 @@ func (app *application) CreateAuthToken(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	token, err := models.GenerateToken(user.ID, 24*time.Hour, models.ScopeAuthentication)
+
+	if err != nil {
+		app.badRequest(w, r, err)
+	}
+
+	//save to db
+
+	err = app.DB.InsertToken(token, user)
+
+	if err != nil {
+		app.badRequest(w, r, err)
+	}
+
 	var payload struct {
-		Error   bool   `json:"error"`
-		Message string `json:"message"`
+		Error   bool          `json:"error"`
+		Message string        `json:"message"`
+		Token   *models.Token `json:"authentication_token"`
 	}
 
 	payload.Error = false
 	payload.Message = "Success"
+	payload.Token = token
 
 	_ = app.writeJSON(w, http.StatusOK, payload)
+
+}
+
+func (app *application) AuthenticateToken(r *http.Request) (*models.User, error) {
+	var u models.User
+
+	return &u, nil
+}
+
+func (app *application) CheckAuthentication(w http.ResponseWriter, r *http.Request) {
+
+	//validate token and get user
+
+	user, err := app.AuthenticateToken(r)
+
+	if err != nil {
+		app.invalidCredentials(w)
+		return
+	}
+
+	var payload struct {
+		Error   bool   `json:"error"`
+		Message string `json:"string"`
+	}
+
+	payload.Error = false
+	payload.Message = fmt.Sprintf("authenticated yser %s", user.Email)
+	app.writeJSON(w, http.StatusOK, payload)
 
 }
