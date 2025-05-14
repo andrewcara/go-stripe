@@ -12,7 +12,7 @@ import (
 
 func (app *application) VirtualTerminal(w http.ResponseWriter, r *http.Request) {
 
-	if err := app.renderTemplate(w, r, "terminal", &templateData{}, "stripe-js"); err != nil {
+	if err := app.renderTemplate(w, r, "terminal", &templateData{}); err != nil {
 		app.errorLog.Println(err)
 	}
 }
