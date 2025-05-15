@@ -10,9 +10,12 @@ import (
 	"os"
 	"time"
 
+	"github.com/alexedwards/scs/postgresstore"
 	"github.com/alexedwards/scs/v2"
 	"github.com/andrewcara/go-stripe.git/internal/driver"
 	"github.com/andrewcara/go-stripe.git/internal/models"
+
+	_ "github.com/lib/pq"
 )
 
 const version = "1.0.0"
@@ -84,6 +87,7 @@ func main() {
 
 	session = scs.New()
 	session.Lifetime = 24 * time.Hour
+	session.Store = postgresstore.New(conn)
 
 	tc := make(map[string]*template.Template)
 
